@@ -1,15 +1,14 @@
-def getInput(output = False):
+def getInput():
     
     n_posts, n_hitch, gas = map(int, input().split())
+    if n_posts < 2 or n_posts > 2000 or n_hitch < 0 or n_hitch > 2000 or gas < 0 or gas > 10**9:
+        return - 1
     hitchhickers = []
     for i in range(0, n_hitch):
         start, end, food, gasol = map(int, input().split())
+        if start < 1 or start > (n_posts - 1) or end < 2 or end > n_posts or food < 0 or food > 10**9 or gas < 0 or gas > 10**9:
+            return - 1
         hitchhickers.append((start, end, food, gasol))
-
-    if output:
-        print(f'{n_posts} {n_hitch} {gas}')
-        for i in range(0, n_hitch):
-            print(hitchhickers[i])
     
     return n_posts, n_hitch, gas, hitchhickers
 
@@ -106,13 +105,6 @@ def tests(bool = False):
         res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
         assert res == -1
 
-        n_posts = 3
-        n_hitch = 2
-        gas = 1
-        hitchhickers = [(2, 3, 5, 5), (3, 2, 5, 5)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
-        assert res == -1
-
         print("All ok")
 
         exit()
@@ -120,7 +112,7 @@ def tests(bool = False):
 
 if __name__ == '__main__':
 
-    tests(True)
+    tests(False)
 
     try:
         n_posts, n_hitch, gas, hitchhickers = getInput()
