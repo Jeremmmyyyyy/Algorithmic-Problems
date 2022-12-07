@@ -25,7 +25,6 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
         result1 = -1
         result2 = -1
         
-        
         if len(T[index]) > 0:
             for i in range(len(T[index])):
                 if gasAvailable + T[index][i][3]>= T[index][i][1] - T[index][i][0]:
@@ -144,8 +143,56 @@ def tests(bool = False):
                         (6, 8, 7, 7), (4, 5, 0, 1), (8, 10, 1, 8),
                         (3, 5, 8, 10)]
         res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
-        print(res)
         assert res == -1
+
+        n_posts = 8
+        n_hitch = 1
+        gas = 0
+        hitchhickers = [(1, 8, 1, 6)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == -1
+
+        n_posts = 8
+        n_hitch = 1
+        gas = 0
+        hitchhickers = [(1, 8, 1, 7)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 1
+
+        n_posts = 8
+        n_hitch = 1
+        gas = 0
+        hitchhickers = [(1, 8, 1, 8)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 1
+
+        n_posts = 8
+        n_hitch = 3
+        gas = 0
+        hitchhickers = [(1, 3, 10, 1), (1, 3, 1, 10), (3, 8, 2, 3)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 3
+
+        n_posts = 8
+        n_hitch = 3
+        gas = 0
+        hitchhickers = [(1, 3, 2, 2), (1, 3, 1, 3), (3, 8, 0, 4)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 1
+
+        n_posts = 3
+        n_hitch = 3
+        gas = 0
+        hitchhickers = [(1, 2, 1, 1), (2, 3, 1, 1), (1, 3, 1, 2)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 2
+
+        n_posts = 3
+        n_hitch = 3
+        gas = 0
+        hitchhickers = [(1, 2, 1, 1), (2, 3, 1, 1), (1, 3, 2, 2)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 2
 
 
         print("All ok")
