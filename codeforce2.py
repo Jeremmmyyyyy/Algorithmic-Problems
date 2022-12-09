@@ -32,11 +32,10 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
                 if gasAvailable > 0:
                     result2 = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
                 result = max(result, result1, result2)
+        elif gasAvailable > 0:
+            result = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
         else:
-            if gasAvailable > 0:
-                result = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
-            else:
-                result = -1
+            result = -1
 
     M[index] = result
     return result
@@ -47,6 +46,7 @@ def memorized_mad_max(n_posts, n_hitch, gas, hitchhickers):
         return 0
     else:
         m = [-1] * (n_posts)
+        m[n_posts - 1] = 0
         newTable = []
         for i in range(n_posts):
             newTable.append([])
