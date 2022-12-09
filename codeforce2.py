@@ -15,8 +15,8 @@ def getInput():
 
 def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
     index = posts - 1
-    if M[index] >= 0:
-        return M[index]
+    if M[index][gasAvailable - 1] >= 0:
+        return M[index][gasAvailable - 1]
     
     if posts == maxVal:
         result = 0
@@ -26,18 +26,18 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
         result2 = -1
         
         if len(T[index]) > 0:
+            if gasAvailable > 0:
+                result1 = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
             for i in range(len(T[index])):
                 if gasAvailable + T[index][i][3]>= T[index][i][1] - T[index][i][0]:
-                    result1 = memorized_mad_max_aux(T[index][i][1], gasAvailable - (T[index][i][1] - T[index][i][0]) + T[index][i][3], M, T, maxVal) + T[index][i][2]
-                if gasAvailable > 0:
-                    result2 = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
+                    result2 = memorized_mad_max_aux(T[index][i][1], gasAvailable - (T[index][i][1] - T[index][i][0]) + T[index][i][3], M, T, maxVal) + T[index][i][2]
                 result = max(result, result1, result2)
         elif gasAvailable > 0:
             result = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
         else:
             result = -1
 
-    M[index] = result
+    M[index][gasAvailable - 1] = result
     return result
 
 
@@ -45,15 +45,22 @@ def memorized_mad_max(n_posts, n_hitch, gas, hitchhickers):
     if n_posts == 0:
         return 0
     else:
-        m = [-1] * (n_posts)
-        m[n_posts - 1] = 0
+        maxGas = gas
         newTable = []
         for i in range(n_posts):
             newTable.append([])
         for index, value in enumerate(hitchhickers):
+            maxGas += value[3]
             newTable[value[0] - 1].append(value)
             if value[0] == value [1]:
                 return - 1
+        if maxGas != 0:
+            m = [[-1 for x in range(maxGas)] for y in range(n_posts)]
+            for j in range(maxGas):
+                m[n_posts - 1][j] = 0
+        else:
+            m = [[-1] for y in range(n_posts)]
+            m[n_posts - 1][0] = 0
 
         return memorized_mad_max_aux(1, gas, m, newTable, n_posts)
 
@@ -194,6 +201,28 @@ def tests(bool = False):
         res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
         assert res == 2
 
+        n_posts = 10
+        n_hitch = 4
+        gas = 2
+        hitchhickers = [(2, 4, 0, 3), (4, 5, 0, 6), (3, 4, 0, 4), (4, 10, 10, 3)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 10
+
+        n_posts = 10
+        n_hitch = 4
+        gas = 2
+        hitchhickers = [(2, 4, 0, 3), (4, 5, 11, 6), (3, 4, 0, 4), (4, 10, 10, 3)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 11
+
+        n_posts = 10
+        n_hitch = 9
+        gas = 10
+        hitchhickers = [(1, 2, 1000000000, 0), (2, 3, 1000000000, 0), (3, 4, 1000000000, 0),
+                        (4, 5, 1000000000, 0), (5, 6, 1000000000, 0), (6, 7, 1000000000, 0),
+                        (7, 8, 1000000000, 0), (8, 9, 1000000000, 0), (9, 10, 1000000000, 0)]
+        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        assert res == 9000000000
 
         print("All ok")
 
