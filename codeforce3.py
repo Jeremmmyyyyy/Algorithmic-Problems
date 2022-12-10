@@ -25,7 +25,7 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
                 maxFood = elem[1]
         return maxFood
     
-    if posts == maxVal:
+    if posts >= maxVal:
         result = 0
     else:
         result = -1
@@ -63,7 +63,7 @@ def memorized_mad_max(n_posts, gas, hitchhickers):
         m = []
         for i in range(n_posts):
             newTable.append([])
-            m.append([(-1, -1)])
+            m.append([])
         maxFood = 0
         maxFuel = gas
         for index, value in enumerate(hitchhickers):
@@ -269,6 +269,14 @@ def tests(bool = False):
         res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 5
 
+        # edge case avant de lancer la recurrence 
+        
+        # if maxFuel < n_posts - 1:
+        #     return -1
+        # elif maxFood == 0 and maxFuel >= n_posts:
+        #     return 0
+
+        # capper le gaz au max de posts
         print("All ok")
 
         exit()
