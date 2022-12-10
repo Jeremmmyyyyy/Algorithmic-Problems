@@ -36,8 +36,11 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
             if gasAvailable > 0:
                 result1 = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
             for i in range(len(T[index])):
-                if gasAvailable + T[index][i][3]>= T[index][i][1] - T[index][i][0]:
-                    result2 = memorized_mad_max_aux(T[index][i][1], gasAvailable - (T[index][i][1] - T[index][i][0]) + T[index][i][3], M, T, maxVal)
+                currentGasPlusHhGas = gasAvailable + T[index][i][3]
+                if currentGasPlusHhGas >= T[index][i][1] - T[index][i][0]:
+                    if currentGasPlusHhGas > maxVal - posts:
+                        currentGasPlusHhGas = maxVal - posts
+                    result2 = memorized_mad_max_aux(T[index][i][1], currentGasPlusHhGas - (T[index][i][1] - T[index][i][0]), M, T, maxVal)
                     foodBonus = T[index][i][2]
                     if result2 + foodBonus < foodBonus:
                         result = -1
