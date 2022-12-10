@@ -1,5 +1,4 @@
 def getInput():
-    
     n_posts, n_hitch, gas = map(int, input().split())
     if n_posts < 2 or n_posts > 2000 or n_hitch < 0 or n_hitch > 2000 or gas < 0 or gas > 10**9:
         return - 1
@@ -15,8 +14,16 @@ def getInput():
 
 def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
     index = posts - 1
-    if M[index][gasAvailable - 1] >= 0:
-        return M[index][gasAvailable - 1]
+    alreadyComp = [(gas,food) for gas, food in M[index] if gas  == gasAvailable]
+    
+    if len(alreadyComp) == 1:
+        return alreadyComp[0][1]
+    elif len(alreadyComp) > 1:
+        maxFood = -1
+        for elem in alreadyComp:
+            if elem[1] >= maxFood:
+                maxFood = elem[1]
+        return maxFood
     
     if posts == maxVal:
         result = 0
@@ -30,206 +37,211 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
                 result1 = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
             for i in range(len(T[index])):
                 if gasAvailable + T[index][i][3]>= T[index][i][1] - T[index][i][0]:
-                    result2 = memorized_mad_max_aux(T[index][i][1], gasAvailable - (T[index][i][1] - T[index][i][0]) + T[index][i][3], M, T, maxVal) + T[index][i][2]
-                result = max(result, result1, result2)
+                    result2 = memorized_mad_max_aux(T[index][i][1], gasAvailable - (T[index][i][1] - T[index][i][0]) + T[index][i][3], M, T, maxVal)
+                    foodBonus = T[index][i][2]
+                    if result2 + foodBonus < foodBonus:
+                        result = -1
+                    else:                
+                        result = max(result, result1, result2 + foodBonus)
         elif gasAvailable > 0:
             result = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
         else:
             result = -1
 
-    M[index][gasAvailable - 1] = result
+    M[index].append((gasAvailable, result))
     return result
 
 
-def memorized_mad_max(n_posts, n_hitch, gas, hitchhickers):
+def memorized_mad_max(n_posts, gas, hitchhickers):
     if n_posts == 0:
         return 0
     else:
-        maxGas = gas
         newTable = []
+        m = []
         for i in range(n_posts):
             newTable.append([])
+            m.append([(-1, -1)])
         for index, value in enumerate(hitchhickers):
-            maxGas += value[3]
             newTable[value[0] - 1].append(value)
             if value[0] == value [1]:
                 return - 1
-        if maxGas != 0:
-            m = [[-1 for x in range(maxGas)] for y in range(n_posts)]
-            for j in range(maxGas):
-                m[n_posts - 1][j] = 0
-        else:
-            m = [[-1] for y in range(n_posts)]
-            m[n_posts - 1][0] = 0
-
+        if gas >= n_posts:
+            gas = n_posts
         return memorized_mad_max_aux(1, gas, m, newTable, n_posts)
 
 def tests(bool = False):
     if bool:
         n_posts = 3
-        n_hitch = 2
         gas = 1
         hitchhickers = [(1, 3, 3, 2), (2, 3, 4, 1)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 4
 
         n_posts = 3
-        n_hitch = 2
         gas = 0
         hitchhickers = [(1, 2, 3, 0), (2, 3, 4, 0)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
 
         n_posts = 3
-        n_hitch = 3
         gas = 1
         hitchhickers = [(2, 3, 5, 0), (2, 3, 6, 0), (1, 3, 67, 5)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 67
 
         n_posts = 1
-        n_hitch = 2
         gas = 0
         hitchhickers = [(0, 0, 5, 0), (0, 0, 6, 0)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
 
         n_posts = 1
-        n_hitch = 2
         gas = 0
         hitchhickers = [(1, 1, 5, 0), (1, 1, 6, 0)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
 
         n_posts = 3
-        n_hitch = 1
         gas = 1
         hitchhickers = [(3, 3, 5, 5)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
 
         n_posts = 4
-        n_hitch = 3
         gas = 1
         hitchhickers = [(1, 2, 10, 1), (3, 4, 1, 1), (1, 4, 100, 1)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 11
 
         n_posts = 10
-        n_hitch = 10
         gas = 6
         hitchhickers = [(5, 6, 4, 2), (2, 8, 0, 4), (6, 8, 8, 9),
                         (1, 3, 0, 2), (3, 9, 6, 8), (6, 7,4, 9),
                         (8, 10, 6, 4), (8, 9, 2, 3), (2, 10, 0, 1),
                         (8, 10, 0, 1)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 18
 
         n_posts = 10
-        n_hitch = 3
         gas = 6
         hitchhickers = [(5, 6, 4, 2), (6, 8, 8, 9),(8, 10, 6, 4)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 18
 
         n_posts = 10
-        n_hitch = 10
         gas = 3
         hitchhickers = [(1, 6, 10, 8), (3, 7, 9, 9), (1, 5, 9, 10),
                         (1, 4, 0, 6), (4, 6, 10, 8), (3, 5, 0, 6),
                         (9, 10, 10, 8), (1, 7, 4, 0), (6, 10, 3, 1),
                         (1, 8, 5, 1)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 20
 
         n_posts = 10
-        n_hitch = 10
         gas = 1
         hitchhickers = [(5, 7, 7, 6), (4, 5, 10, 0), (3, 10, 7, 8),
                         (8, 10, 0, 3), (4, 8, 4, 2), (8, 9, 9, 5),
                         (6, 8, 7, 7), (4, 5, 0, 1), (8, 10, 1, 8),
                         (3, 5, 8, 10)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
 
         n_posts = 8
-        n_hitch = 1
         gas = 0
         hitchhickers = [(1, 8, 1, 6)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
 
         n_posts = 8
-        n_hitch = 1
         gas = 0
         hitchhickers = [(1, 8, 1, 7)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 1
 
         n_posts = 8
-        n_hitch = 1
         gas = 0
         hitchhickers = [(1, 8, 1, 8)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 1
 
         n_posts = 8
-        n_hitch = 3
         gas = 0
         hitchhickers = [(1, 3, 10, 1), (1, 3, 1, 10), (3, 8, 2, 3)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 3
 
         n_posts = 8
-        n_hitch = 3
         gas = 0
         hitchhickers = [(1, 3, 2, 2), (1, 3, 1, 3), (3, 8, 0, 4)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 1
 
         n_posts = 3
-        n_hitch = 3
         gas = 0
         hitchhickers = [(1, 2, 1, 1), (2, 3, 1, 1), (1, 3, 1, 2)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 2
 
         n_posts = 3
-        n_hitch = 3
         gas = 0
         hitchhickers = [(1, 2, 1, 1), (2, 3, 1, 1), (1, 3, 2, 2)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 2
 
         n_posts = 10
-        n_hitch = 4
         gas = 2
         hitchhickers = [(2, 4, 0, 3), (4, 5, 0, 6), (3, 4, 0, 4), (4, 10, 10, 3)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 10
 
         n_posts = 10
-        n_hitch = 4
         gas = 2
         hitchhickers = [(2, 4, 0, 3), (4, 5, 11, 6), (3, 4, 0, 4), (4, 10, 10, 3)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 11
 
         n_posts = 10
-        n_hitch = 9
         gas = 10
         hitchhickers = [(1, 2, 1000000000, 0), (2, 3, 1000000000, 0), (3, 4, 1000000000, 0),
                         (4, 5, 1000000000, 0), (5, 6, 1000000000, 0), (6, 7, 1000000000, 0),
                         (7, 8, 1000000000, 0), (8, 9, 1000000000, 0), (9, 10, 1000000000, 0)]
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 9000000000
 
         n_posts = 10
         gas = 2
-        n_hitch = 3
+        hitchhickers = [(2, 4, 1, 2), (3, 4, 2, 1), (4, 10, 0, 10)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == 2
+
+        n_posts = 10
+        gas = 2
+        hitchhickers = [(2, 4, 3, 2), (3, 4, 2, 1), (4, 10, 0, 10)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == 3
+
+        n_posts = 10
+        gas = 2
+        hitchhickers = [(2, 4, 3, 1), (3, 4, 2, 1), (4, 10, 0, 6)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == 3
+
+        n_posts = 10
+        gas = 2
+        hitchhickers = [(2, 4, 2, 1), (3, 4, 3, 1), (4, 10, 0, 6)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == 3
+
+        n_posts = 10
+        gas = 2
         hitchhickers = [(2, 4, 2, 1), (3, 4, 3, 1), (4, 10, 0, 5)]
-        res = memorized_mad_max(n_posts,n_hitch, gas, hitchhickers)
-        print(res)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == -1
+
+        n_posts = 10
+        gas = 2
+        hitchhickers = [(2, 4, 3, 1), (3, 4, 2, 1), (4, 10, 0, 5)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
 
         print("All ok")
@@ -247,7 +259,7 @@ if __name__ == '__main__':
         print("Impossible")
     else:
 
-        res = memorized_mad_max(n_posts, n_hitch, gas, hitchhickers)
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
         if res < 0:
             print("Impossible")
         else:
