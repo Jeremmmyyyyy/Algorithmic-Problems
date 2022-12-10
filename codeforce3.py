@@ -18,12 +18,12 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
     
     if len(alreadyComp) == 1:
         return alreadyComp[0][1]
-    elif len(alreadyComp) > 1:
-        maxFood = -1
-        for elem in alreadyComp:
-            if elem[1] >= maxFood:
-                maxFood = elem[1]
-        return maxFood
+    # elif len(alreadyComp) > 1:
+    #     maxFood = -1
+    #     for elem in alreadyComp:
+    #         if elem[1] >= maxFood:
+    #             maxFood = elem[1]
+    #     return maxFood
     
     if posts >= maxVal:
         result = 0
@@ -269,6 +269,17 @@ def tests(bool = False):
         res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 5
 
+        n_posts = 4
+        gas = 10
+        hitchhickers = [(1, 2, 1, 10), (1, 2, 2, 10), (2, 4, 3, 10), (2, 4, 4, 10)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == 6
+
+        n_posts = 999
+        gas = 1459
+        hitchhickers = [(338, 788, 1526, 613), (249, 451, 322, 1466), (113, 383, 1236, 1227)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == -1
         # edge case avant de lancer la recurrence 
         
         # if maxFuel < n_posts - 1:
