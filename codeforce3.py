@@ -38,8 +38,8 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
             for i in range(len(T[index])):
                 currentGasPlusHhGas = gasAvailable + T[index][i][3]
                 if currentGasPlusHhGas >= T[index][i][1] - T[index][i][0]:
-                    if currentGasPlusHhGas > maxVal - posts:
-                        currentGasPlusHhGas = maxVal - posts
+                    if currentGasPlusHhGas >= maxVal - index:
+                        currentGasPlusHhGas = maxVal - index
                     result2 = memorized_mad_max_aux(T[index][i][1], currentGasPlusHhGas - (T[index][i][1] - T[index][i][0]), M, T, maxVal)
                     foodBonus = T[index][i][2]
                     if result2 + foodBonus < foodBonus:
@@ -64,13 +64,23 @@ def memorized_mad_max(n_posts, gas, hitchhickers):
         for i in range(n_posts):
             newTable.append([])
             m.append([(-1, -1)])
+        maxFood = 0
+        maxFuel = gas
         for index, value in enumerate(hitchhickers):
+            maxFood += value[2]
+            maxFuel += value[3]
             newTable[value[0] - 1].append(value)
             if value[0] == value [1]:
                 return - 1
         if gas >= n_posts:
             gas = n_posts
-        return memorized_mad_max_aux(1, gas, m, newTable, n_posts)
+
+        if maxFuel < n_posts - 1:
+            return -1
+        elif maxFood == 0 and maxFuel >= n_posts:
+            return 0
+        else:
+            return memorized_mad_max_aux(1, gas, m, newTable, n_posts)
 
 def tests(bool = False):
     if bool:
@@ -246,6 +256,18 @@ def tests(bool = False):
         hitchhickers = [(2, 4, 3, 1), (3, 4, 2, 1), (4, 10, 0, 5)]
         res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == -1
+
+        n_posts = 10
+        gas = 20
+        hitchhickers = [(2, 4, 5, 20), (2, 4, 4, 25), (4, 10, 0, 0)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == 5
+
+        n_posts = 10
+        gas = 20
+        hitchhickers = [(2, 4, 4, 20), (2, 4, 5, 25), (4, 10, 0, 0)]
+        res = memorized_mad_max(n_posts, gas, hitchhickers)
+        assert res == 5
 
         print("All ok")
 
