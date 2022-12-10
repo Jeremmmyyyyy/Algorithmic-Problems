@@ -275,11 +275,13 @@ def tests(bool = False):
         res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 6
 
-        n_posts = 999
-        gas = 1459
-        hitchhickers = [(338, 788, 1526, 613), (249, 451, 322, 1466), (113, 383, 1236, 1227)]
+
+        n_posts = 1500
+        gas = 1999
+        hitchhickers = [(3, 4, 1, 0)]
         res = memorized_mad_max(n_posts, gas, hitchhickers)
-        assert res == -1
+        assert res == 0
+        
         # edge case avant de lancer la recurrence 
         
         # if maxFuel < n_posts - 1:
