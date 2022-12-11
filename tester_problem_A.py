@@ -1,113 +1,98 @@
-def getInput():
-    n_posts, n_hitch, gas = map(int, input().split())
-    if n_posts < 2 or n_posts > 2000 or n_hitch < 0 or n_hitch > 2000 or gas < 0 or gas > 10**9:
-        return - 1
-    hitchhickers = []
-    for i in range(0, n_hitch):
-        start, end, food, gasol = map(int, input().split())
-        if start < 1 or start > (n_posts - 1) or end < 2 or end > n_posts or food < 0 or food > 10**9 or gas < 0 or gas > 10**9:
-            return - 1
-        hitchhickers.append((start, end, food, gasol))
-    
-    return n_posts, n_hitch, gas, hitchhickers
+import random
+from colorama import Fore
+from colorama import Style
+from codeforce_problem_A import memorized_mad_max
+import sys
+import traceback
 
 
-def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
-    index = posts - 1
+#original values
+posts = 2000
+hh = 2000
+maxInt = 10**9
 
-    alreadyComp = [(gas,food) for gas, food in M[index] if gas  == gasAvailable]
-    if len(alreadyComp) == 1:
-        return alreadyComp[0][1]
-    
-    if posts >= maxVal:
-        result = 0
-    else:
-        result = -1
-        result1 = -1
-        result2 = -1
-        
-        if len(T[index]) > 0:
+#edgecases
+postsT = 1000
+hhT = 10
+maxIntT = 2000
 
-            for i in range(len(T[index])):
+def randomInputNormal():
+    list = []
+    n = random.randint(2, posts)
+    m = random.randint(2, hh)
+    f = random.randint(0, maxInt)
 
-                currentGasPlusHhGas = gasAvailable + T[index][i][3]
-                if currentGasPlusHhGas >= T[index][i][1] - T[index][i][0]:
+    for i in range(m):
+        ai = random.randint(1, n -1)
+        bi = random.randint(ai, n)
+        ci = random.randint(0, maxInt)
+        fi = random.randint(0, maxInt)
 
-                    if currentGasPlusHhGas >= maxVal - index:
-                        currentGasPlusHhGas = maxVal - index
-                    
-                    alreadyComp = [(gas,food) for gas, food in M[T[index][i][1] - 1] if gas  == currentGasPlusHhGas - (T[index][i][1] - T[index][i][0])]
-                    if len(alreadyComp) == 1:
-                        result2 = alreadyComp[0][1]
-                    else:
-                        result2 = memorized_mad_max_aux(T[index][i][1], currentGasPlusHhGas - (T[index][i][1] - T[index][i][0]), M, T, maxVal)
-                
-                    foodBonus = T[index][i][2]
-                    if result2 + foodBonus < foodBonus:
-                        result = -1
-                    else:                
-                        result = max(result, result1, result2 + foodBonus)
+        list.append((ai, bi, ci, fi))
 
-            if gasAvailable > 0:
+    return n, f, list
 
-                nextHh = index + 1
-                while len(T[nextHh]) == 0 and nextHh < gasAvailable and nextHh < len(T) - 1:
-                    nextHh += 1
-                jump = nextHh - index
+def randomInputTuned():
+    list = []
+    n = random.randint(2, postsT)
+    m = random.randint(2, hhT)
+    f = random.randint(0, maxIntT)
 
-                alreadyComp = [(gas,food) for gas, food in M[index + jump] if gas  == gasAvailable - jump]
-                if len(alreadyComp) == 1:
-                    result1 = alreadyComp[0][1]
-                else:
-                    result1 = memorized_mad_max_aux(posts + jump, gasAvailable - jump, M, T, maxVal)
-                result = max(result, result1)
+    for i in range(m):
+        ai = random.randint(1, n -1)
+        bi = random.randint(ai, n)
+        ci = random.randint(0, maxIntT)
+        fi = random.randint(0, maxIntT)
 
-        elif gasAvailable > 0:
+        list.append((ai, bi, ci, fi))
 
-            nextHh = index + 1
-            while len(T[nextHh]) == 0 and nextHh < gasAvailable and nextHh < len(T) - 1:
-                nextHh += 1
-            jump = nextHh - index
+    return n, f, list
 
-            alreadyComp = [(gas,food) for gas, food in M[posts + jump -1] if gas  == gasAvailable - jump]
-            if len(alreadyComp) == 1:
-                result = alreadyComp[0][1]
-            else:
-                result = memorized_mad_max_aux(posts + jump, gasAvailable - jump, M, T, maxVal)
-
+def randomTesting(normal = True):    
+    for i in range(2000):
+        if normal:
+            n_posts, gas, hitchhickers = randomInputNormal()
         else:
-            result = -1
-
-    M[index].append((gasAvailable, result))
-    return result
-
-
-def memorized_mad_max(n_posts, gas, hitchhickers):
-    if n_posts == 0:
-        return 0
+            n_posts, gas, hitchhickers = randomInputTuned()
+        try:
+            memorized_mad_max(n_posts, gas, hitchhickers)
+            
+        except RecursionError:
+            print(n_posts, gas)
+            print(hitchhickers)
+            print(f"{Fore.RED}FAIL{Style.RESET_ALL} : For random")
+            exit()
+    if normal:
+        print(f"{Fore.LIGHTGREEN_EX}OK{Style.RESET_ALL} :   For all normal random")
     else:
-        newTable = []
-        m = []
-        for i in range(n_posts):
-            newTable.append([])
-            m.append([])
-        maxFood = 0
-        maxFuel = gas
-        for index, value in enumerate(hitchhickers):
-            maxFood += value[2]
-            maxFuel += value[3]
-            newTable[value[0] - 1].append(value)
-            if value[0] == value [1]:
-                return - 1
-        if gas >= n_posts:
-            gas = n_posts
+        print(f"{Fore.LIGHTGREEN_EX}OK{Style.RESET_ALL} :   For all tuned random")
 
-        if maxFuel < n_posts - 1:
-            return -1
-        elif maxFood == 0 and maxFuel >= n_posts:
-            return 0
-        else:
-            return memorized_mad_max_aux(1, gas, m, newTable, n_posts)
+def maxRecDepth1():
+    list = []
+    for i in range(1200):
+        list.append((i + 1, i + 2, 1, 1))
+    try:
+        res = memorized_mad_max(2000, 2000, list)
+    except RecursionError:
+        print(f"{Fore.RED}FAIL{Style.RESET_ALL} : For max recursion depth limit 1 ")
+        print(traceback.format_exc())
+    else:
+        assert res == 1200
+        print(f"{Fore.LIGHTGREEN_EX}OK{Style.RESET_ALL} :   For max recursion depth limit 1 ")
+
+
+
+def maxRecDepth2():
+    list = []
+    for i in range(1200):
+        list.append((1, 10 + i, 1, 1))
+    try:
+        res = memorized_mad_max(2000, 2000, list)
+    except RecursionError:
+        print(f"{Fore.RED}FAIL{Style.RESET_ALL} : For max recursion depth limit 2 ")
+    else:
+        assert res == 1
+        print(f"{Fore.LIGHTGREEN_EX}OK{Style.RESET_ALL} :   For max recursion depth limit 2 ")
 
 def tests(bool = False):
     if bool:
@@ -309,31 +294,19 @@ def tests(bool = False):
         res = memorized_mad_max(n_posts, gas, hitchhickers)
         assert res == 1
         
-        # edge case avant de lancer la recurrence 
+        print(f"{Fore.LIGHTGREEN_EX}OK{Style.RESET_ALL} :   For all normal edgecases")
+
+
         
-        # if maxFuel < n_posts - 1:
-        #     return -1
-        # elif maxFood == 0 and maxFuel >= n_posts:
-        #     return 0
-
-        # capper le gaz au max de posts
-        print("All ok")
-
-        exit()
 
 
 if __name__ == '__main__':
-
+    sys.setrecursionlimit(5000)
     tests(True)
+    randomTesting(True)
+    randomTesting(False)
+    maxRecDepth1()
+    maxRecDepth2()
 
-    try:
-        n_posts, n_hitch, gas, hitchhickers = getInput()
-    except:
-        print("Impossible")
-    else:
-
-        res = memorized_mad_max(n_posts, gas, hitchhickers)
-        if res < 0:
-            print("Impossible")
-        else:
-            print(res)
+    
+        
