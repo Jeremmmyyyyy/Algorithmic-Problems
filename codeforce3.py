@@ -18,12 +18,6 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
     
     if len(alreadyComp) == 1:
         return alreadyComp[0][1]
-    # elif len(alreadyComp) > 1:
-    #     maxFood = -1
-    #     for elem in alreadyComp:
-    #         if elem[1] >= maxFood:
-    #             maxFood = elem[1]
-    #     return maxFood
     
     if posts >= maxVal:
         result = 0
@@ -33,21 +27,40 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
         result2 = -1
         
         if len(T[index]) > 0:
-            if gasAvailable > 0:
-                result1 = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
+
             for i in range(len(T[index])):
+
                 currentGasPlusHhGas = gasAvailable + T[index][i][3]
                 if currentGasPlusHhGas >= T[index][i][1] - T[index][i][0]:
+
                     if currentGasPlusHhGas >= maxVal - index:
                         currentGasPlusHhGas = maxVal - index
+
                     result2 = memorized_mad_max_aux(T[index][i][1], currentGasPlusHhGas - (T[index][i][1] - T[index][i][0]), M, T, maxVal)
                     foodBonus = T[index][i][2]
                     if result2 + foodBonus < foodBonus:
                         result = -1
+
                     else:                
                         result = max(result, result1, result2 + foodBonus)
+
+            if gasAvailable > 0:
+
+                nextHh = index + 1
+                while len(T[nextHh]) == 0 and nextHh < gasAvailable and nextHh < len(T) - 1:
+                    nextHh += 1
+                jump = nextHh - index
+                result1 = memorized_mad_max_aux(posts + jump, gasAvailable - jump, M, T, maxVal)
+                result = max(result, result1)
+
         elif gasAvailable > 0:
-            result = memorized_mad_max_aux(posts + 1, gasAvailable - 1, M, T, maxVal)
+
+            nextHh = index + 1
+            while len(T[nextHh]) == 0 and nextHh < gasAvailable and nextHh < len(T) - 1:
+                nextHh += 1
+            jump = nextHh - index
+            result = memorized_mad_max_aux(posts + jump, gasAvailable - jump, M, T, maxVal)
+
         else:
             result = -1
 
@@ -278,9 +291,9 @@ def tests(bool = False):
 
         n_posts = 1500
         gas = 1999
-        hitchhickers = [(3, 4, 1, 0)]
+        hitchhickers = [(1, 2, 1, 0)]
         res = memorized_mad_max(n_posts, gas, hitchhickers)
-        assert res == 0
+        assert res == 1
         
         # edge case avant de lancer la recurrence 
         

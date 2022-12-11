@@ -2,14 +2,14 @@ import random
 import codeforce3
 
 #original values
-# posts = 2000
-# hh = 2000
-# maxInt = 10**9
+posts = 2000
+hh = 2000
+maxInt = 10**9
 
 #edgecases
-posts = 1000
-hh = 10
-maxInt = 2000
+# posts = 1000
+# hh = 10
+# maxInt = 2000
 
 def randomInput():
     list = []
