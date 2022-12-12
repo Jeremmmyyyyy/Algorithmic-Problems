@@ -87,6 +87,7 @@ def memorized_mad_max_aux(posts, gasAvailable, M, T, maxVal):
 
 #? main recursion for the problem
 def memorized_mad_max(n_posts, gas, hitchhickers):
+    sys.setrecursionlimit(5000)
     if n_posts == 0:
         return 0
     else:

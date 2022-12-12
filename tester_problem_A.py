@@ -2,7 +2,6 @@ import random
 from colorama import Fore
 from colorama import Style
 from codeforce_problem_A import memorized_mad_max
-import sys
 import traceback
 
 
@@ -301,7 +300,6 @@ def tests(bool = False):
 
 
 if __name__ == '__main__':
-    sys.setrecursionlimit(5000)
     tests(True)
     randomTesting(True)
     randomTesting(False)
