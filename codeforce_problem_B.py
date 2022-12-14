@@ -13,26 +13,26 @@ def makeSet(number):
     #* set, parent, rank
     return [[i , i, 0] for i in range(number)]
 
-def findSet(set):
-    if set[0] != set[1]:
-        set[1] = findSet(set[1])
-    return set[1]
+def findSet(l, x):
+    if l[x][0] != l[x][1]:
+        l[x][1] = findSet(l, l[x][1])
+    return l[x][1]
 
-def link(set1, set2):
-    if set1[2] > set2[2]:
-        set2[1] = set1[0]
+def link(l, x, y):
+    if l[x][2] > l[y][2]:
+        l[y][1] = x
     else:
-        set1[1] = set2[0]
-        if set1[2] == set2[2]:
-            set2[2] = set2[2] + 1
+        l[x][1] = y
+        if l[x][2] == l[y][2]:
+            l[y][2] = l[y][2] + 1
 
-def union(set1, set2):
-    link(findSet(set1), findSet(set2))
+def union(l, x, y):
+    link(l, findSet(l, x), findSet(l, y))
 
 def adjacencyList(n_intersections, roads):
     adjList = [[] for i in range(n_intersections)]
     for road in roads:
-        adjList[road[2]].append((road[3], road[0]))
+        adjList[road[2] - 1].append((road[3], road[0]))
     return adjList
 
 def optimized_path(intersections, n_roads, start, end, roads):
@@ -49,31 +49,35 @@ def optimized_path(intersections, n_roads, start, end, roads):
     #* Iterate over all the roads. And connect the sets that are connected by the roads
     #* this connection process takes all the smallest roads and stops when the start point and end point are connected
     #* result in a list of roads with minimum maximum amount of snow that connects end point s and t
+    maxSnow = -1
     for i in range(n_roads):
         newElem = heapq.heappop(heapqSnow)
-        union(connectedComp[newElem[2]], connectedComp[newElem[3]])
+        union(connectedComp, newElem[2] - 1, newElem[3] - 1)
         #* pushes the roads that are valid in the heapq ordered by length.
         lengthList.append((newElem[1], newElem[0], newElem[2], newElem[3]))
-        if findSet(connectedComp[start]) == findSet(connectedComp[end]):
+        if findSet(connectedComp, start - 1) == findSet(connectedComp, end - 1):
+            maxSnow = newElem[0]
             break
         
     #* creates adjList to easier access to the neighbor vertex when uisng djikstra
     adjList = adjacencyList(intersections, lengthList)
     #* init the mist with max val
-    Q = [[(10**10, i)] for i in range(intersections)]
+    Q = []
     #* init the source to 0
-    Q[start][0] = 0
+    heapq.heappush(Q, (0, start - 1))
+    for i in range(1, intersections):
+        heapq.heappush(Q, (10**10, i))
     S = []
     while len(Q) != 0:
         u = heapq.heappop(Q)
         S.append(u)
         for dest in adjList[u[1]]:
-            if Q[dest[0]] > u[0] + dest[1]:
-                Q[dest[0]][0] = u[0] + dest[1]
-                heapq.heapify(Q)
+            # tup = [end for i in Q if i[1] == dest[0] - 1]
+            if Q[dest[0] - 1][0] > u[0] + dest[1]:
+                Q[dest[0] - 1] = (u[0] + dest[1], Q[dest[0] - 1][1])
     
     length = [length for (length, id) in Q if id == end]
-    return end
+    return maxSnow, end
 
 if __name__ == '__main__':
     #* get the input from stdin
