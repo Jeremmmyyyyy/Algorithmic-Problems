@@ -14,7 +14,7 @@ def makeSet(number):
     return [[i , i, 0] for i in range(number)]
 
 def findSet(set):
-    if set != set[1]:
+    if set[0] != set[1]:
         set[1] = findSet(set[1])
     return set[1]
 
@@ -77,7 +77,12 @@ def optimized_path(intersections, n_roads, start, end, roads):
 
 if __name__ == '__main__':
     #* get the input from stdin
-    intersections, n_roads, start, end, roads = getInput()
+    # intersections, n_roads, start, end, roads = getInput()
+    intersections = 3
+    n_roads = 3
+    start = 1 
+    end = 3
+    roads = [(1, 3, 1, 3), (1, 2, 10, 1), (2, 3, 10, 2)]
     optimized_path(intersections, n_roads, start, end, roads)
     
         
