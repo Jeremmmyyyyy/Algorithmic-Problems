@@ -32,7 +32,7 @@ def union(set1, set2):
 def adjacencyList(n_intersections, roads):
     adjList = [[] for i in range(n_intersections)]
     for road in roads:
-        adjList[road[2]].append(road[3])
+        adjList[road[2]].append((road[3], road[0]))
     return adjList
 
 def optimized_path(intersections, n_roads, start, end, roads):
@@ -43,7 +43,7 @@ def optimized_path(intersections, n_roads, start, end, roads):
         heapq.heappush(heapqSnow, (snow, length, r_start, r_end))
 
     #* create heapq for the length of the chosen roads
-    heapqLength = []
+    lengthList = []
     #* create a set for each intersection
     connectedComp = makeSet(intersections)
     #* Iterate over all the roads. And connect the sets that are connected by the roads
@@ -53,22 +53,28 @@ def optimized_path(intersections, n_roads, start, end, roads):
         newElem = heapq.heappop(heapqSnow)
         union(connectedComp[newElem[2]], connectedComp[newElem[3]])
         #* pushes the roads that are valid in the heapq ordered by length.
-        heapq.heappush(heapqLength, (newElem[1], newElem[0], newElem[2], newElem[3]))
+        lengthList.append((newElem[1], newElem[0], newElem[2], newElem[3]))
         if findSet(connectedComp[start]) == findSet(connectedComp[end]):
             break
         
     #* creates adjList to easier access to the neighbor vertex when uisng djikstra
-    adjList = adjacencyList(intersections, heapqLength)
-    #* init the graph 
-    Graph = [[10**10] for i in range(intersections)]
+    adjList = adjacencyList(intersections, lengthList)
+    #* init the mist with max val
+    Q = [[(10**10, i)] for i in range(intersections)]
     #* init the source to 0
-    Graph[start] = 0
+    Q[start][0] = 0
     S = []
-    while len(heapqLength) != 0:
-        u = heapq.heappop(heapqLength)
+    while len(Q) != 0:
+        u = heapq.heappop(Q)
         S.append(u)
+        for dest in adjList[u[1]]:
+            if Q[dest[0]] > u[0] + dest[1]:
+                Q[dest[0]][0] = u[0] + dest[1]
+                heapq.heapify(Q)
     
-    
+    length = [length for (length, id) in Q if id == end]
+    return end
+
 if __name__ == '__main__':
     #* get the input from stdin
     intersections, n_roads, start, end, roads = getInput()
