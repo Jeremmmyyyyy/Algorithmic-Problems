@@ -4,12 +4,12 @@ The goal of this competition was to solve two algorithmic problems that you can 
 
 You had to code the most efficient and optimized algorithms to pass all 80 tests
 
-# Table of Contents
-1. [Problem A : Mad Max Hitchhickers Road](#A)
-2. [Problem B : Snowy road](#B)
+
+1. [Problem A : Mad Max Hitchhickers Road](#problem-a-mad-max-hitchhickers-road)
+2. [Problem B : Snowy road](#problem-b-snowy-road)
 
 
-## Problem A : Mad Max Hitchhickers Road<a name="A"></a>
+## Problem A Mad Max Hitchhickers Road
 
 >time limit per test : 2 seconds<br>
 memory limit per test : 256 megabytes<br>
@@ -78,7 +78,7 @@ In the first example, to get 4
  since he cannot travel back.
 
 
-## Problem B : Snowy road<a name="B"></a>
+## Problem B Snowy road
 
 >time limit per test : 2.5 s<br>
 memory limit per test : 256MB<br>
